@@ -4,8 +4,8 @@ var requestHandlers = require("./requestHandlers");
 
 var handle = {}
 handle["/"] = requestHandlers.start;
+handle["/start"] = requestHandlers.start;
 handle["/login"] = requestHandlers.login;
 handle["/method"] = requestHandlers.method;
-handle["/w_method"] = requestHandlers.w_method;
 
-server.start(router.route, handle);
+server.start(router.route, handle)

@@ -5,7 +5,7 @@ var mysql = require('mssql');
 const sql = require('mssql')
 const sqlConfig = {
   user: 'atlasov',
-  password: "hirosima",
+  password: "10101973",
   database: 'ut',
   server: 'localhost',
   pool: {
@@ -15,56 +15,37 @@ const sqlConfig = {
   },
   options: {
     encrypt: true, // for azure
-    trustServerCertificate: false // change to true for local dev / self-signed certs
+    trustServerCertificate: true // change to true for local dev / self-signed certs
   }
 }
 
-async () => {
- try {
-  // make sure that any items are correctly URL encoded in the connection string
-  await sql.connect(sqlConfig)
-  const result = await sql.query`select * from mytable where id = ${value}`
-  console.dir(result)
- } catch (err) {
-  // ... error checks
- }
-}
-
-
-function start( req ) {
+function start( req, res ) {
   console.log("start")
-  return "Get Started"
+  res.end("get start")
 }
 
 function login( req, res ) {
-
-  var txt = "call login(?, ?)";
-  console.log(req.body)
-  client.query(txt, [req.body.phone, req.body.pass], function(err, res){
-      if(err) throw err; var json = res[0];
-      return JSON.stringify(json)
-      //socket.emit("login", json);
-  });
-
-  return "login"
-
 }
+
 function method ( req, res ) {
   console.log(req.body)
-  try {
-    // make sure that any items are correctly URL encoded in the connection string
-      await sql.connect(sqlConfig)
-      const result = await sql.query`exec method(  ${req.body.method},  ${req.body})`
-      console.dir(result)
-      res.end(JSON.stringify(result))
-   } catch (err) {
-      res.end()
-   }
+  async function getdata () {
+    try {
+      // make sure that any items are correctly URL encoded in the connection string
+        await sql.connect(sqlConfig)
+        const result = await sql.query`exec method ${req.body.method},  ${JSON.stringify(req.body)} `
+//        console.dir(result)
+        res.end(JSON.stringify(result.recordset))
+    } catch (err) {
+        console.log(err)
+        res.end()
+    }
+  }
 
+  getdata()
 }
 
 
 exports.start     = start;
 exports.login     = login;
 exports.method    = method;
-exports.w_method  = w_method;

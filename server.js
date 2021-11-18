@@ -1,9 +1,20 @@
 var http = require("http");
+var https = require("https");
 var url = require("url");
 var express = require('express');
 const multer = require('multer')
 var cors = require('cors')
-var app = express();
+var fs = require('fs');
+
+var key = fs.readFileSync('privatekey.pem').toString();
+var sert = fs.readFileSync('certificate.pem').toString();  
+
+var options = {
+	key: fs.readFileSync('privatekey.pem'),
+	cert: fs.readFileSync('certificate.pem')
+};
+
+var app = express({key: key, cert: sert});
 const upload = multer()
 
 function start(route, handle) {
@@ -28,7 +39,13 @@ function start(route, handle) {
 	app.post('/w_method', onRequest);
 	app.post('/upload', upload.array('fotos', 12), onRequest);
 	   
-	app.listen(3000);	
+	//app.listen(3000);	
+	// Create an HTTP service.
+	var port1 = process.env.PORT || 3000;
+	var port2 = process.env.PORT || 3010;
+	http.createServer(app).listen( port1 );
+	// Create an HTTPS service identical to the HTTP service.
+	https.createServer(options, app).listen( port2 );
 }
 
 exports.start = start;
