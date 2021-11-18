@@ -1,21 +1,33 @@
-var http = require("http");
-var https = require("https");
-var url = require("url");
-var express = require('express');
-const multer = require('multer')
-var cors = require('cors')
-var fs = require('fs');
+var http 		= require("http");
+var url 		= require("url");
+var express 	= require('express');
+const multer 	= require('multer')
+var cors 		= require('cors')
+var fs 			= require('fs');
 
-var key = fs.readFileSync('privatekey.pem').toString();
-var sert = fs.readFileSync('certificate.pem').toString();  
+var FCM = require('fcm-node');
+var serverKey = 'AIzaSyC2iBWTU8RhfUVql7o92mtRhQ6Nx2Ori4g'; //put your server key here
+var fcm = new FCM(serverKey);
 
-var options = {
-	key: fs.readFileSync('privatekey.pem'),
-	cert: fs.readFileSync('certificate.pem')
+var app = express();
+const upload = multer()
+
+var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+	to: 'drK1QawFS9G_wjA4BAqkI3:APA91bFEEQlaDZE218MeUtHItm6iR_4t-z-BmLGP2b090XD5av9ntO6yWBUsmLTCnltjMQx8uVPsw3MUUnrIXTEIYAXn9KUn3ixnSNHfaGhSQt_4dYJXo8Qm1--C9b5pz3-sTzt7Y8zr', 
+	collapse_key: 'AIzaSyC2iBWTU8RhfUVql7o92mtRhQ6Nx2Ori4g',
+	
+	notification: {
+		title: 'Test of GCM', 
+		body: 'test push notification' 
+	},
+	
+	data: {  //you can send only notification or only data(or include both)
+		my_key: 'my value',
+		my_another_key: 'my another value'
+	}
 };
 
-var app = express({key: key, cert: sert});
-const upload = multer()
+
 
 function start(route, handle) {
   function onRequest(request, response) {
@@ -24,6 +36,13 @@ function start(route, handle) {
 
 	ret = route(handle, pathname, request, response);
 
+	fcm.send(message, function(err, response){
+		if (err) {
+			console.log("Something has gone wrong!");
+		} else {
+			console.log("Successfully sent with response: ", response);
+		}
+	});
 	
   }
 	console.log("Request received.");
@@ -42,10 +61,7 @@ function start(route, handle) {
 	//app.listen(3000);	
 	// Create an HTTP service.
 	var port1 = process.env.PORT || 3000;
-	var port2 = process.env.PORT || 3010;
 	http.createServer(app).listen( port1 );
-	// Create an HTTPS service identical to the HTTP service.
-	https.createServer(options, app).listen( port2 );
 }
 
 exports.start = start;
