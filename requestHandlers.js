@@ -19,8 +19,16 @@ const sqlConfig = {
   }
 }
 
+var fcm 		= require('fcm-notification');
+var FCM 		= new fcm('privatekey.json');
+var token 		= 'eeapUKT2QT2v748kyyItTc:APA91bGWrRX0vsZRg_XfCFaZKGXXRrfdX_BsNnUB9S9xC3zlnVpxdLgZ_pEx7tK-B347YA9FA460jjhdxnnpUrsINTjAn2U8f_X-qmspIzO01rvjF8yzJXugr4iIuCRvGpyAmEFD3-aV';
+ 
+
 function start( req, res ) {
-  console.log("start")
+  console.log("start")	
+
+  sendFCM( token, "Акция", " Отправляем вам промокод 240313245")
+
   res.end("get start")
 }
 
@@ -45,6 +53,26 @@ function method ( req, res ) {
   getdata()
 }
 
+function sendFCM( token, title, text ) {
+
+  var message = {
+    notification:{
+        title : title,
+        body : text
+    },
+        token : token
+    };
+
+
+  FCM.send(message, function(err, response) {
+		if(err){
+			console.log('error found', err);
+		}else {
+			console.log('response here', response);
+		}
+	})
+
+}
 
 exports.start     = start;
 exports.login     = login;
